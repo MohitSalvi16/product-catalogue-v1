@@ -4,7 +4,7 @@ A proof of concept that is meant to be kept: customers browse and search a catal
 
 **Stack:** React + TypeScript (Vite) client, Node.js + TypeScript (Fastify) backend.
 
-Also in this repo: [DECISIONS.md](DECISIONS.md) (assumptions, cuts, growth, next steps) and [AI_USAGE.md](AI_USAGE.md).
+Also in this repo: [DECISIONS.md](DECISIONS.md) (assumptions, cuts, growth, next steps).
 
 ## Run it
 
