@@ -28,6 +28,7 @@
 - Prices are USD, since Fake Store does not specify. No tax or stock is shown.
 - No customer accounts. Browsing and enquiring are both anonymous.
 - Category names come from the source as they are, including its spelling "jewelery".
+- A malformed id in a URL (`/products/not!valid`) is a 400 from the API, because it is invalid input, but the customer sees the normal "not found" message, because to them the page does not exist.
 - Product images count as product data. They are hosted on fakestoreapi.com, so linking to them directly would mean the browser calling Fake Store. The backend proxies them, and the nginx Content Security Policy blocks any other origin as a backstop.
 
 ## Requirements dropped or simplified
@@ -42,6 +43,7 @@ Nothing in the acceptance criteria was dropped. These were left out or simplifie
 | No admin UI for top rated | Not in the criteria | Changing the list means a config change and a restart |
 | Types are duplicated in `frontend/src/api/client.ts` | One small file does not justify a shared package or codegen | The two can drift. The smoke test catches some of that, not all. |
 | No infrastructure as code | It is optional and would not help the entrepreneur try the product | See the AWS notes in the README |
+| A failed image is not retried | The backend drops the failure, so the next page load works, and the connection fix made this rare | During a Fake Store outage a tile shows "No image" until the page is reloaded |
 | Minimal styling | Creative work is in progress, and it would be replaced | Styling is tokens plus one small stylesheet |
 
 ## How the design supports growth

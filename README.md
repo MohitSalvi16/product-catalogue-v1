@@ -52,8 +52,8 @@ Invalid configuration stops the backend at startup with a message saying what is
 ## Test
 
 ```bash
-cd backend && npm ci && npm test      # 38 tests: API, services, adapters, config
-cd frontend && npm ci && npm test     # 11 tests: each acceptance criterion through the real UI
+cd backend && npm ci && npm test      # 40 tests: API, services, adapters, config
+cd frontend && npm ci && npm test     # 12 tests: each acceptance criterion through the real UI
 node e2e/smoke.mjs                    # against a running stack: nginx, backend and real email delivery
 
 # Every acceptance criterion in a real browser, against a running stack
