@@ -4,7 +4,7 @@ A proof of concept that is meant to be kept: customers browse and search a catal
 
 **Stack:** React + TypeScript (Vite) client, Node.js + TypeScript (Fastify) backend.
 
-Also in this repo: [DECISIONS.md](DECISIONS.md) (assumptions, cuts, growth, next steps).
+Also in this repo: [DECISIONS.md](DECISIONS.md) (assumptions, cuts, growth, next steps) and [AI_USAGE.md](AI_USAGE.md) (how AI was used and where it went wrong).
 
 ## Run it
 
@@ -55,9 +55,14 @@ Invalid configuration stops the backend at startup with a message saying what is
 cd backend && npm ci && npm test      # 38 tests: API, services, adapters, config
 cd frontend && npm ci && npm test     # 11 tests: each acceptance criterion through the real UI
 node e2e/smoke.mjs                    # against a running stack: nginx, backend and real email delivery
+
+# Every acceptance criterion in a real browser, against a running stack
+cd e2e && npm ci && npx playwright install chromium && npm run journey
 ```
 
-The backend suite runs the real Fastify app and services over in-memory adapters. The frontend suite renders the whole app and stubs only `fetch`. The smoke test is the only one that crosses every boundary: it submits an enquiry through nginx and reads the delivered email back from Mailpit. CI runs all three (`.github/workflows/ci.yml`).
+The backend suite runs the real Fastify app and services over in-memory adapters. The frontend suite renders the whole app and stubs only `fetch`. The smoke test crosses every boundary at the HTTP level: it submits an enquiry through nginx and reads the delivered email back from Mailpit. The journey does the same as a customer would, in Chromium, and also checks that the browser only talks to our own origin. CI runs all four (`.github/workflows/ci.yml`), using the fixture source and skipping image checks so that it does not depend on Fake Store.
+
+Enquiries are limited to 5 a minute per client, so rerunning these back to back can hit the limit. Wait a minute if it does.
 
 ## Why this stack
 

@@ -60,13 +60,12 @@ Other choices that make growth easier:
 
 Boundaries I deliberately did not add, because nothing needs them yet: a top-rated provider interface, a separate DTO layer, and a monorepo tool.
 
-**Resilience.** Fake Store is a free third party, and the product snapshot cache exists because of that. It serves the last good catalogue during an outage and limits how often we call the API. It also gives search a data set to work on, because Fake Store has no search endpoint, and it avoids a trap: an unknown `/products/:id` returns an empty 200 and not a 404.
+**Resilience.** Fake Store is a free third party, and the product snapshot cache exists because of that. Connections are allowed 2s per address, not Node's default 250ms, because that limit caused occasional failures on slower links. It is a fixed value in `index.ts` and not configuration, because it is a workaround for a platform default that nobody needs to tune per environment. It serves the last good catalogue during an outage and limits how often we call the API. It also gives search a data set to work on, because Fake Store has no search endpoint, and it avoids a trap: an unknown `/products/:id` returns an empty 200 and not a 404.
 
 ## What I would do next with another day
 
 1. **Store enquiries before sending** (a table plus an outbox retry), so a mail outage cannot lose a lead. This is the only gap that costs the business money directly.
-2. **Browser end-to-end tests in CI** with Playwright. The customer journey was checked in a real browser during development, but that script is not committed. Today's committed smoke test works at the HTTP level and would not catch a broken page.
-3. **Spam protection:** a honeypot field now, and a shared rate limit store once there is more than one instance.
-4. **Generate client types** from an OpenAPI description of the backend.
-5. **Move image delivery** to S3 and CloudFront once the catalogue is real, replacing the proxy and its in-memory cache.
-6. **Observability:** a readiness check on the data source, metrics on upstream failures, and alerts on failed enquiries.
+2. **Spam protection:** a honeypot field now, and a shared rate limit store once there is more than one instance.
+3. **Generate client types** from an OpenAPI description of the backend.
+4. **Move image delivery** to S3 and CloudFront once the catalogue is real, replacing the proxy and its in-memory cache.
+5. **Observability:** a readiness check on the data source, metrics on upstream failures, and alerts on failed enquiries.
