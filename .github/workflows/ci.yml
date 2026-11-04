@@ -38,5 +38,14 @@ jobs:
         env:
           PRODUCT_SOURCE: fixture
       - run: node e2e/smoke.mjs
+      - run: npm ci
+        working-directory: e2e
+      - run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      # Fixture products still point at Fake Store for images, so image checks are skipped here.
+      - run: npm run journey
+        working-directory: e2e
+        env:
+          CHECK_IMAGES: '0'
       - if: failure()
         run: docker compose logs
