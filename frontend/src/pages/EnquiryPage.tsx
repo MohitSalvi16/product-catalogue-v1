@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 import { api, ApiError, type EnquiryRequest } from '../api/client';
+import { FormField } from '../components/FormField';
 import { QueryStatus } from '../components/QueryStatus';
 
 type ContactDetails = Omit<EnquiryRequest, 'productId'>;
@@ -36,41 +37,21 @@ export function EnquiryPage() {
     enquiry.mutate({ ...form, productId: id });
   }
 
-  function field(name: keyof ContactDetails, label: string, props: FieldProps = {}) {
-    const fieldError = failure?.fieldErrors[name]?.[0];
-    const { multiline, ...inputProps } = props;
-    const shared = {
-      id: name,
-      name,
-      value: form[name],
-      'aria-invalid': fieldError ? true : undefined,
-      'aria-describedby': fieldError ? `${name}-error` : undefined,
-      onChange: (event: { target: { value: string } }) =>
-        setForm({ ...form, [name]: event.target.value }),
-      ...inputProps,
-    };
-
-    return (
-      <div className="form-field">
-        <label htmlFor={name}>{label}</label>
-        {multiline ? <textarea rows={5} {...shared} /> : <input {...shared} />}
-        {fieldError && (
-          <p id={`${name}-error`} className="form-field__error">
-            {fieldError}
-          </p>
-        )}
-      </div>
-    );
-  }
+  const field = (name: keyof ContactDetails) => ({
+    name,
+    value: form[name],
+    error: failure?.fieldErrors[name]?.[0],
+    onChange: (value: string) => setForm({ ...form, [name]: value }),
+  });
 
   return (
     <>
       <h1>Enquire about {product.title}</h1>
       <form className="enquiry-form" onSubmit={handleSubmit}>
-        {field('name', 'Name', { required: true, maxLength: 100, autoComplete: 'name' })}
-        {field('email', 'Email', { required: true, type: 'email', autoComplete: 'email' })}
-        {field('phone', 'Phone (optional)', { type: 'tel', maxLength: 30, autoComplete: 'tel' })}
-        {field('message', 'Message (optional)', { multiline: true, maxLength: 2000 })}
+        <FormField {...field('name')} label="Name" required maxLength={100} autoComplete="name" />
+        <FormField {...field('email')} label="Email" required type="email" autoComplete="email" />
+        <FormField {...field('phone')} label="Phone (optional)" type="tel" maxLength={30} autoComplete="tel" />
+        <FormField {...field('message')} label="Message (optional)" multiline maxLength={2000} />
         {failure && <p role="alert">{failure.message}</p>}
         <button type="submit" className="button" disabled={enquiry.isPending}>
           {enquiry.isPending ? 'Sending…' : 'Send enquiry'}
@@ -78,12 +59,4 @@ export function EnquiryPage() {
       </form>
     </>
   );
-}
-
-interface FieldProps {
-  required?: boolean;
-  type?: string;
-  maxLength?: number;
-  autoComplete?: string;
-  multiline?: boolean;
 }
