@@ -148,6 +148,20 @@ describe('product page', () => {
   });
 });
 
+describe('a product url that cannot exist', () => {
+  it('says the product was not found', async () => {
+    stubApi({
+      '/api/products/bad!id': () => ({
+        status: 400,
+        body: { error: { code: 'VALIDATION_FAILED', message: 'Please check the highlighted fields' } },
+      }),
+    });
+    renderAt('/products/bad!id');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('We could not find that product');
+  });
+});
+
 describe('enquiry', () => {
   async function completeForm(user: ReturnType<typeof userEvent.setup>) {
     await user.click(await screen.findByRole('link', { name: 'Enquire' }));

@@ -19,8 +19,8 @@ page.on('request', (request) => {
 page.on('console', (message) => {
   const { url } = message.location();
   const isImage = url.endsWith('/image');
-  // invalidEnquiry() gets this 400 on purpose, and the browser logs every failed request.
-  const isExpected = url.endsWith('/api/enquiries') && message.text().includes('400');
+  // Two steps get a 400 on purpose, and the browser logs every failed request.
+  const isExpected = /enquiries|not!valid/.test(url) && message.text().includes('400');
   if (message.type() === 'error' && !isExpected && (checkImages || !isImage)) {
     consoleErrors.push(`${message.text()} ${url}`);
   }
@@ -120,6 +120,12 @@ async function invalidEnquiry() {
   check('server validation appears on the field', true);
 }
 
+async function malformedUrl() {
+  await page.goto(`${WEB}/products/not!valid`);
+  await page.getByText('We could not find that product').waitFor();
+  check('a malformed product url says not found', true);
+}
+
 async function mobileWidth() {
   await page.setViewportSize({ width: 375, height: 700 });
   await page.goto(WEB);
@@ -135,6 +141,7 @@ try {
   await productPage(featured);
   await enquiry();
   await invalidEnquiry();
+  await malformedUrl();
   await mobileWidth();
   check('browser only talks to our origin', externalRequests.length === 0, externalRequests[0]);
   check('no console errors', consoleErrors.length === 0, consoleErrors[0]);
