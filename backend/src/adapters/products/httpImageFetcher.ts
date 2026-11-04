@@ -14,6 +14,11 @@ export class HttpImageFetcher implements ImageFetcher {
       if (!response.ok) throw new Error(`Image host responded ${response.status}`);
       if (!contentType.startsWith('image/')) throw new Error(`Unexpected type ${contentType}`);
 
+      // Checked again below, because the header is optional.
+      if (Number(response.headers.get('content-length')) > MAX_IMAGE_BYTES) {
+        throw new Error('Image too large');
+      }
+
       const body = Buffer.from(await response.arrayBuffer());
       if (body.byteLength > MAX_IMAGE_BYTES) throw new Error('Image too large');
       return { contentType, body };

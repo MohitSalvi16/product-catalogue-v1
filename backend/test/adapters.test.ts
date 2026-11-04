@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SmtpMailer } from '../src/adapters/mail/SmtpMailer.js';
 import { createFakeStoreLoader } from '../src/adapters/products/fakeStore.js';
@@ -71,6 +73,17 @@ describe('HttpImageFetcher', () => {
     );
     await expect(images.fetch('https://x.test/a.png')).rejects.toBeInstanceOf(ProductSourceError);
   });
+
+  it('refuses an oversized image without downloading it', async () => {
+    const response = new Response('x', {
+      headers: { 'content-type': 'image/png', 'content-length': String(6 * 1024 * 1024) },
+    });
+    const download = vi.spyOn(response, 'arrayBuffer');
+    vi.stubGlobal('fetch', vi.fn(async () => response));
+
+    await expect(images.fetch('https://x.test/a.png')).rejects.toBeInstanceOf(ProductSourceError);
+    expect(download).not.toHaveBeenCalled();
+  });
 });
 
 describe('SmtpMailer', () => {
@@ -103,6 +116,15 @@ describe('SmtpMailer', () => {
 });
 
 describe('config', () => {
+  it('documents every setting in .env.example, with valid values', () => {
+    const example = readFileSync(new URL('../../.env.example', import.meta.url), 'utf8');
+
+    expect(() => loadConfig(parseEnv(example))).not.toThrow();
+    for (const setting of Object.keys(loadConfig({}))) {
+      expect(example).toMatch(new RegExp(`^(# )?${setting}=`, 'm'));
+    }
+  });
+
   it('fails fast on invalid values', () => {
     expect(() => loadConfig({ SALES_INBOX_EMAIL: 'nope' })).toThrow(/Invalid configuration/);
     expect(() => loadConfig({ TOP_RATED_PRODUCT_IDS: '1,1' })).toThrow(/unique/);

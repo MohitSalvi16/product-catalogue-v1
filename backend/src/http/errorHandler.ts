@@ -27,7 +27,7 @@ export function errorHandler(error: FastifyError, request: FastifyRequest, reply
     return send(reply, 429, 'RATE_LIMITED', 'Too many requests. Please try again shortly');
   }
   if (error.statusCode && error.statusCode < 500) {
-    return send(reply, error.statusCode, 'BAD_REQUEST', error.message);
+    return send(reply, error.statusCode, 'BAD_REQUEST', 'The request could not be processed');
   }
   request.log.error({ err: error }, 'Unhandled error');
   return send(reply, 500, 'INTERNAL_ERROR', 'Something went wrong');

@@ -196,7 +196,10 @@ describe('enquiries', () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().error.code).toBe('BAD_REQUEST');
+    expect(response.json().error).toEqual({
+      code: 'BAD_REQUEST',
+      message: 'The request could not be processed',
+    });
   });
 });
 
