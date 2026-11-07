@@ -1,0 +1,43 @@
+# Every value has a default, so `docker compose up --build` works with no setup.
+# To override one, copy .env.example to .env.
+services:
+  web:
+    build: ./frontend
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build: ./backend
+    environment:
+      TRUST_PROXY_HOPS: 1
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PRODUCT_SOURCE: ${PRODUCT_SOURCE:-fakestore}
+      TOP_RATED_PRODUCT_IDS: ${TOP_RATED_PRODUCT_IDS:-1,5,9,14,15}
+      FAKE_STORE_BASE_URL: ${FAKE_STORE_BASE_URL:-https://fakestoreapi.com}
+      PRODUCT_CACHE_TTL_SECONDS: ${PRODUCT_CACHE_TTL_SECONDS:-300}
+      UPSTREAM_TIMEOUT_MS: ${UPSTREAM_TIMEOUT_MS:-5000}
+      IMAGE_TIMEOUT_MS: ${IMAGE_TIMEOUT_MS:-20000}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-Catalogue <no-reply@catalogue.local>}
+      SALES_INBOX_EMAIL: ${SALES_INBOX_EMAIL:-sales@catalogue.local}
+      ENQUIRY_RATE_LIMIT_PER_MINUTE: ${ENQUIRY_RATE_LIMIT_PER_MINUTE:-5}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    depends_on:
+      - mailpit
+
+  # Local stand-in for the sales inbox. Read the mail at http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"

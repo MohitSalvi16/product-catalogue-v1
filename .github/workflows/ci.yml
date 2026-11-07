@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [backend, frontend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # The fixture keeps CI independent of Fake Store being up and reachable.
+      - run: docker compose up --build --detach --wait
+        env:
+          PRODUCT_SOURCE: fixture
+      - run: node e2e/smoke.mjs
+      - run: npm ci
+        working-directory: e2e
+      - run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      # Fixture products still point at Fake Store for images, so image checks are skipped here.
+      - run: npm run journey
+        working-directory: e2e
+        env:
+          CHECK_IMAGES: '0'
+      - if: failure()
+        run: docker compose logs
