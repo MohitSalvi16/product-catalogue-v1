@@ -121,12 +121,11 @@ No infrastructure is included (see [DECISIONS.md](DECISIONS.md)), but the design
 
 ## Time spent
 
-> **TODO (Mohit): replace this with your real total before submitting, including your own review.**
-
 | Activity | Time |
 | --- | --- |
 | Planning (AI session) | ~5 min |
 | Building (AI session) | ~12 min |
 | Testing and fixing (AI session) | ~8 min |
 | Docs (AI session) | ~5 min |
-| Human review and walkthrough | TODO |
+| Human review (reading the core backend code) | ~60–80 min |
+| **Total** | **~1.5–2 hours** |
