@@ -40,6 +40,7 @@ Nothing in the acceptance criteria was dropped. These were left out or simplifie
 | Enquiries are not stored | No database keeps the PoC simple to run | If email fails the customer must retry, and there is no record of enquiries beyond the inbox. This is the first thing I would fix. |
 | No pagination | 20 products | The API wraps lists in `{ items }`, so paging can be added without breaking clients |
 | Spam protection is rate limiting only | It stops the cheap abuse without needing a third-party account | A distributed bot gets through. Rate limits are also per instance, in memory. |
+| Rejected enquiries count towards the rate limit | The limiter runs before validation. This was found in the final check and left as it is to avoid a code change just before submitting | A customer with 5 server-side validation errors in a minute has to wait before sending a valid enquiry |
 | No admin UI for top rated | Not in the criteria | Changing the list means a config change and a restart |
 | Types are duplicated in `frontend/src/api/client.ts` | One small file does not justify a shared package or codegen | The two can drift. The smoke test catches some of that, not all. |
 | No infrastructure as code | It is optional and would not help the entrepreneur try the product | See the AWS notes in the README |

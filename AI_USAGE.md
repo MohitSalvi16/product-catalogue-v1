@@ -1,7 +1,5 @@
 # AI usage
 
-> **TODO (Mohit): before submitting, read every line of the code and add your own review notes in the last section. The interview will ask you to defend all of it.**
-
 ## Tools and models
 
 - **Claude Code** (CLI) on Windows, with **Claude Opus 5.5** (`claude-opus-5-5`), for planning, code, tests, documentation and verification.
@@ -47,4 +45,10 @@ Also confirmed rather than assumed: seven requests with different spoofed `X-For
 
 ## Human review
 
-TODO (Mohit): what you reviewed, what you changed, and what you disagreed with.
+I read the seven core backend files, which took about 60–80 minutes: `composition.ts`, `routes.ts`, `errorHandler.ts`, `CatalogueService.ts`, `EnquiryService.ts`, `SnapshotProductRepository.ts` and `domain/product.ts`.
+
+I then had the agent check the repo against the challenge brief before submitting. These findings came from that check, not from my own reading:
+
+- **The check itself nearly gave a false pass.** `docker compose up` failed because another local stack held the ports, but the smoke test still passed because it reached that other stack. The result was discarded, and the tests were rerun on this repo's own stack on different ports.
+- **Rejected enquiries use up the rate limit.** Five invalid submissions followed by a valid one returned `400,400,400,400,400,429`, so the valid enquiry was refused. The automated tests had not covered this. It is not fixed in this submission and is recorded in [DECISIONS.md](DECISIONS.md).
+- **Submission gaps.** The PR had no description, and the time spent and review notes were unfinished.
